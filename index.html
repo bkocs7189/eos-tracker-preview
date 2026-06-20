@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>EOS Tracker — Company Operating System</title>
+<style>
+  :root{
+    --bg:#0f1419; --panel:#171d26; --panel2:#1d2530; --line:#2a323f;
+    --txt:#e6edf3; --muted:#8b97a7; --accent:#4f7cff; --accent2:#6c5ce7;
+    --green:#2ecc71; --red:#ff5c5c; --amber:#f5a623; --chip:#222b38;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--txt);font-size:14px}
+  a{color:var(--accent)}
+  .app{display:flex;min-height:100vh}
+  .side{width:220px;background:var(--panel);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+  .brand{font-weight:700;font-size:17px;padding:6px 10px 14px;letter-spacing:.3px}
+  .brand small{display:block;color:var(--muted);font-weight:500;font-size:11px;margin-top:3px}
+  .nav{display:block;padding:10px 12px;border-radius:9px;color:var(--muted);cursor:pointer;text-decoration:none;font-weight:600}
+  .nav:hover{background:var(--panel2);color:var(--txt)}
+  .nav.active{background:var(--accent);color:#fff}
+  .nav .c{float:right;background:rgba(255,255,255,.15);border-radius:20px;padding:0 8px;font-size:11px;font-weight:700}
+  .side .foot{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+  .btn{background:var(--accent);color:#fff;border:0;padding:9px 14px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13px}
+  .btn.sec{background:var(--panel2);border:1px solid var(--line);color:var(--txt)}
+  .btn.sm{padding:5px 10px;font-size:12px}
+  .btn.danger{background:var(--red)}
+  .main{flex:1;padding:26px 32px;max-width:1500px}
+  h1{font-size:24px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 22px}
+  .grid{display:grid;gap:16px}
+  .cards{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .card h3{margin:0 0 6px;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .card .big{font-size:30px;font-weight:700}
+  .card .meta{color:var(--muted);font-size:12px;margin-top:6px}
+  .row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .between{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;background:var(--panel2)}
+  tr:last-child td{border-bottom:0}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  .pill.green{background:rgba(46,204,113,.15);color:var(--green)}
+  .pill.red{background:rgba(255,92,92,.15);color:var(--red)}
+  .pill.amber{background:rgba(245,166,35,.15);color:var(--amber)}
+  .pill.grey{background:var(--chip);color:var(--muted)}
+  .cell-green{color:var(--green);font-weight:700}
+  .cell-red{color:var(--red);font-weight:700}
+  .bar{height:7px;background:var(--panel2);border-radius:20px;overflow:hidden;min-width:90px}
+  .bar > i{display:block;height:100%;background:var(--accent)}
+  .muted{color:var(--muted)}
+  input,select,textarea{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:9px 10px;border-radius:8px;font-size:13px;width:100%;font-family:inherit}
+  input[type=checkbox]{width:auto}
+  label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px;font-weight:600}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-start;justify-content:center;padding:60px 16px;overflow:auto;z-index:50}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;width:560px;max-width:100%}
+  .modal h2{margin:0 0 16px;font-size:18px}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .fgrid .full{grid-column:1/3}
+  .ms-row{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+  .ms-row input[type=text]{flex:1}
+  .sparkline{display:flex;align-items:flex-end;gap:2px;height:34px}
+  .sparkline > i{flex:1;background:var(--accent);border-radius:2px 2px 0 0;min-height:2px}
+  .tag{font-size:11px;background:var(--chip);color:var(--muted);padding:2px 8px;border-radius:6px}
+  .empty{padding:40px;text-align:center;color:var(--muted)}
+  .iconbtn{background:none;border:0;color:var(--muted);cursor:pointer;font-size:13px;padding:4px 6px}
+  .iconbtn:hover{color:var(--txt)}
+  .done-txt{text-decoration:line-through;color:var(--muted)}
+  .seg{display:flex;gap:6px}
+  .seg button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600}
+  .seg button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand">EOS Tracker<small>Company Operating System</small></div>
+    <a class="nav" data-view="dashboard">Dashboard</a>
+    <a class="nav" data-view="rocks">Rocks <span class="c" id="c-rocks"></span></a>
+    <a class="nav" data-view="scorecard">Scorecard <span class="c" id="c-score"></span></a>
+    <a class="nav" data-view="kpis">KPIs <span class="c" id="c-kpis"></span></a>
+    <a class="nav" data-view="ids">IDS / Issues <span class="c" id="c-ids"></span></a>
+    <a class="nav" data-view="todos">To-Dos <span class="c" id="c-todos"></span></a>
+    <div class="foot">
+      <button class="btn sec sm" onclick="exportData()">Export JSON</button>
+      <button class="btn sec sm" onclick="document.getElementById('imp').click()">Import JSON</button>
+      <input type="file" id="imp" accept="application/json" style="display:none" onchange="importData(event)"/>
+      <button class="btn sec sm" onclick="resetData()">Reset to seed</button>
+      <div id="syncstatus" style="margin-top:8px;font-size:11px;font-weight:600;color:#d97706">● Connecting…</div>
+    </div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+
+<div class="modal-bg" id="modal-bg"><div class="modal" id="modal"></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2/dist/umd/supabase.js" integrity="sha384-nD3dwv4+ZqdYnmZKe/249ImlV04om7xTCcsoSeQYI+RO+XlKPoqAWaJR1M5SJH9p" crossorigin="anonymous"></script>
+<script>
+let PEOPLE = ["Company", "Accessibility Auditor", "Account Strategist", "Accounts Payable Agent", "Ad Creative Strategist", "Agentic Identity & Trust Architect", "Agents Orchestrator", "AI Citation Strategist", "AI Data Remediation Engineer", "AI Engineer", "Analytics Reporter", "Anthropologist", "API Tester", "App Store Optimizer", "Automation Governance Architect", "Autonomous Optimization Architect", "Backend Architect", "Baidu SEO Specialist", "Behavioral Nudge Engine", "Bilibili Content Strategist", "Blender Add-on Engineer", "Blockchain Security Auditor", "Book Co-Author", "Brand Guardian", "Carousel Growth Engine", "CEO", "Chief Marketing Officer", "Chief of Staff", "China E-Commerce Operator", "Code Reviewer", "Code Reviewer 2", "Compliance Auditor", "Content Creator", "COO", "Corporate Training Designer", "Creative Director", "Cross-Border E-Commerce Specialist", "Cultural Intelligence Strategist", "Data Consolidation Agent", "Data Engineer", "Database Optimizer", "Deal Strategist", "Developer Advocate", "DevOps Automator", "Discovery Coach", "Document Generator", "Douyin Strategist", "Embedded Firmware Engineer", "Evidence Collector", "Executive Summary Generator", "Experiment Tracker", "Feedback Synthesizer", "Feishu Integration Developer", "Finance Tracker", "FoundingEngineer", "French Consulting Market Navigator", "Frontend Developer", "Game Audio Engineer", "Game Designer", "Game Development Director", "Geographer", "Git Workflow Master", "Godot Gameplay Scripter", "Godot Multiplayer Engineer", "Godot Shader Developer", "Government Digital Presales Consultant", "Growth Hacker", "Healthcare Marketing Compliance Specialist", "Historian", "Identity Graph Operator", "Image Prompt Engineer", "Incident Response Commander", "Inclusive Visuals Specialist", "Infrastructure Maintainer", "Instagram Curator", "Jira Workflow Steward", "Korean Business Navigator", "Kuaishou Strategist", "Lead Engineer", "Legal Compliance Checker", "Level Designer", "LinkedIn Content Creator", "Livestream Commerce Coach", "LSP/Index Engineer", "macOS Spatial/Metal Engineer", "MCP Builder", "Mobile App Builder", "Model QA Specialist", "Narrative Designer", "Narratologist", "Outbound Strategist", "Paid Media Auditor", "Paid Social Strategist", "Performance Benchmarker", "Pipeline Analyst", "Podcast Strategist", "PPC Campaign Strategist", "Private Domain Operator", "Product Manager", "Programmatic & Display Buyer", "Project Shepherd", "Proposal Strategist", "Psychologist", "QA Director", "Rapid Prototyper", "Reality Checker", "Recruitment Specialist", "Reddit Community Builder", "Release Engineer", "Report Distribution Agent", "Roblox Avatar Creator", "Roblox Experience Designer", "Roblox Systems Scripter", "Sales Coach", "Sales Data Extraction Agent", "Sales Engineer", "Salesforce Architect", "Search Query Analyst", "Security Engineer", "Senior Developer", "Senior Project Manager", "SEO Specialist", "Short-Video Editing Coach", "Social Media Strategist", "Software Architect", "Solidity Smart Contract Engineer", "Sprint Prioritizer", "SRE (Site Reliability Engineer)", "Studio Operations", "Studio Producer", "Study Abroad Advisor", "Supply Chain Strategist", "Support Responder", "Technical Artist", "Technical Writer", "Terminal Integration Specialist", "Test Results Analyzer", "Threat Detection Engineer", "TikTok Strategist", "Tool Evaluator", "Tracking & Measurement Specialist", "Trend Researcher", "Twitter Engager", "UI Designer", "Unity Architect", "Unity Editor Tool Developer", "Unity Multiplayer Engineer", "Unity Shader Graph Artist", "Unreal Multiplayer Architect", "Unreal Systems Engineer", "Unreal Technical Artist", "Unreal World Builder", "UX Architect", "UX Researcher", "visionOS Spatial Engineer", "Visual Storyteller", "VP of Engineering", "VP of Operations", "VP of Product", "VP of Sales", "WeChat Mini Program Developer", "WeChat Official Account Manager", "Weibo Strategist", "Whimsy Injector", "Workflow Architect", "Workflow Optimizer", "Xiaohongshu Specialist", "XR Cockpit Interaction Specialist", "XR Director", "XR Immersive Developer", "XR Interface Architect", "Zhihu Strategist", "ZK Steward"];
+const SEED = {"rocks": [{"id": "rock-1", "title": "Ship EOS Tracking Web App to the board", "owner": "Company", "type": "company", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 60, "milestones": [{"text": "Data model + seed", "done": true}, {"text": "5 modules CRUD", "done": true}, {"text": "Shared backend + auth", "done": false}, {"text": "Deploy preview URL", "done": false}]}, {"id": "rock-2", "title": "Reach 99.9% agent fleet uptime", "owner": "Company", "type": "company", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 40, "milestones": [{"text": "Observability baseline", "done": true}, {"text": "Auto-recovery routines", "done": false}, {"text": "On-call rotation", "done": false}]}, {"id": "rock-3", "title": "Establish EOS accountability chart for all divisions", "owner": "Company", "type": "company", "quarter": "Q2 2026", "dueDate": "2026-05-31", "status": "done", "percentComplete": 100, "milestones": [{"text": "Org chart drafted", "done": true}, {"text": "Rule-of-5 cascade", "done": true}, {"text": "Board sign-off", "done": true}]}, {"id": "rock-4", "title": "Reduce mean cost-per-completed-issue by 20%", "owner": "Company", "type": "company", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "off-track", "percentComplete": 25, "milestones": [{"text": "Cost instrumentation", "done": true}, {"text": "Budget guardrails", "done": false}, {"text": "Model routing tuning", "done": false}]}, {"id": "rock-5", "title": "Define service architecture standards v1", "owner": "Software Architect", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 55, "milestones": [{"text": "Patterns doc", "done": true}, {"text": "Review with leads", "done": false}]}, {"id": "rock-6", "title": "CI/CD + preview-deploy pipeline live", "owner": "DevOps Automator", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 50, "milestones": [{"text": "Pipeline scaffold", "done": true}, {"text": "Preview environments", "done": false}]}, {"id": "rock-7", "title": "EOS app UI shell + 5 module views", "owner": "Frontend Developer", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-25", "status": "on-track", "percentComplete": 70, "milestones": [{"text": "Layout + nav", "done": true}, {"text": "Module screens", "done": true}, {"text": "Design polish", "done": false}]}, {"id": "rock-8", "title": "Board-grade authn for internal apps", "owner": "Security Engineer", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "off-track", "percentComplete": 20, "milestones": [{"text": "Auth approach chosen", "done": false}, {"text": "SSO integration", "done": false}]}, {"id": "rock-9", "title": "Weekly scorecard discipline across L10s", "owner": "Chief of Staff", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 45, "milestones": [{"text": "Define measurables", "done": true}, {"text": "Owners assigned", "done": true}, {"text": "13-week tracking", "done": false}]}, {"id": "rock-10", "title": "GTM narrative for agentic offering", "owner": "Chief Marketing Officer", "type": "individual", "quarter": "Q2 2026", "dueDate": "2026-06-30", "status": "on-track", "percentComplete": 35, "milestones": [{"text": "Positioning draft", "done": true}, {"text": "Channel plan", "done": false}]}], "scorecard": [{"id": "meas-1", "name": "Issues closed / week", "owner": "Chief of Staff", "goal": 40, "direction": ">=", "weeks": [31, 28, 35, 42, 38, 45, 41, 39, 44, 47, 40, 43, 46]}, {"id": "meas-2", "name": "Agent fleet uptime %", "owner": "DevOps Automator", "goal": 99.9, "direction": ">=", "weeks": [99.2, 99.5, 99.1, 99.7, 99.8, 99.4, 99.6, 99.9, 99.7, 99.8, 99.9, 99.5, 99.6]}, {"id": "meas-3", "name": "Avg cost / completed issue ($)", "owner": "Software Architect", "goal": 3.0, "direction": "<=", "weeks": [4.1, 3.9, 3.8, 3.6, 3.7, 3.5, 3.4, 3.6, 3.3, 3.2, 3.4, 3.1, 3.0]}, {"id": "meas-4", "name": "Open critical issues", "owner": "Company", "goal": 2, "direction": "<=", "weeks": [5, 4, 6, 3, 4, 2, 3, 2, 1, 2, 3, 2, 1]}, {"id": "meas-5", "name": "PR review turnaround (hrs)", "owner": "Software Architect", "goal": 8, "direction": "<=", "weeks": [12, 11, 10, 9, 9, 8, 9, 7, 8, 7, 8, 6, 7]}, {"id": "meas-6", "name": "Board-visible deploys / week", "owner": "DevOps Automator", "goal": 3, "direction": ">=", "weeks": [1, 2, 2, 3, 2, 4, 3, 3, 4, 3, 4, 5, 4]}], "kpis": [{"id": "kpi-1", "name": "Active agents", "owner": "Chief of Staff", "target": 150, "current": 172, "unit": "agents", "history": [{"date": "2026-03", "value": 120}, {"date": "2026-04", "value": 140}, {"date": "2026-05", "value": 165}, {"date": "2026-06", "value": 172}]}, {"id": "kpi-2", "name": "Monthly run cost", "owner": "Software Architect", "target": 5000, "current": 5800, "unit": "$", "history": [{"date": "2026-03", "value": 7200}, {"date": "2026-04", "value": 6600}, {"date": "2026-05", "value": 6100}, {"date": "2026-06", "value": 5800}]}, {"id": "kpi-3", "name": "Issue throughput", "owner": "Chief of Staff", "target": 160, "current": 178, "unit": "issues/mo", "history": [{"date": "2026-03", "value": 110}, {"date": "2026-04", "value": 132}, {"date": "2026-05", "value": 159}, {"date": "2026-06", "value": 178}]}, {"id": "kpi-4", "name": "Rocks on-track %", "owner": "Company", "target": 80, "current": 71, "unit": "%", "history": [{"date": "2026-03", "value": 60}, {"date": "2026-04", "value": 65}, {"date": "2026-05", "value": 68}, {"date": "2026-06", "value": 71}]}], "issues": [{"id": "ids-1", "title": "Board needs shared, persistent EOS data (not per-browser)", "description": "Single-file app stores locally; board members can't see each other's edits. Need shared backend.", "owner": "Software Architect", "priority": "high", "status": "discussing", "createdAt": "2026-06-20"}, {"id": "ids-2", "title": "Authn for board access undefined", "description": "Decide SSO vs magic-link vs simple gate for board-only access.", "owner": "Security Engineer", "priority": "high", "status": "open", "createdAt": "2026-06-20"}, {"id": "ids-3", "title": "Cost-per-issue trending above target", "description": "Avg cost not yet under $3.00 goal; needs model routing review.", "owner": "Software Architect", "priority": "medium", "status": "open", "createdAt": "2026-06-20"}, {"id": "ids-4", "title": "Design direction from parallel design track pending", "description": "Pull UX/UI from sibling design issue once available; current UI is functional baseline.", "owner": "Creative Director", "priority": "low", "status": "open", "createdAt": "2026-06-20"}, {"id": "ids-5", "title": "Scorecard owners confirmed for all measurables", "description": "Each measurable now has an accountable owner.", "owner": "Chief of Staff", "priority": "medium", "status": "solved", "createdAt": "2026-06-20"}], "todos": [{"id": "todo-1", "title": "Stand up shared backend for EOS data", "owner": "Software Architect", "dueDate": "2026-06-24", "done": false}, {"id": "todo-2", "title": "Wire board authn (auth gate)", "owner": "Security Engineer", "dueDate": "2026-06-25", "done": false}, {"id": "todo-3", "title": "Deploy preview URL + share with board", "owner": "DevOps Automator", "dueDate": "2026-06-26", "done": false}, {"id": "todo-4", "title": "Polish UI per design track", "owner": "Frontend Developer", "dueDate": "2026-06-27", "done": false}, {"id": "todo-5", "title": "Confirm 13-week scorecard owners", "owner": "Chief of Staff", "dueDate": "2026-06-22", "done": true}]};
+const KEY = "eos-tracker-v1"; // local cache used as offline fallback only
+
+/* ================= SHARED BACKEND (Supabase) =================
+   v2 swaps per-browser localStorage for a shared Postgres store so the
+   board sees one live dataset. The in-memory `DB` shape is byte-identical
+   to v1 (camelCase), so every CRUD view, export, and import is unchanged.
+   Persistence strategy: optimistic in-memory mutate -> background sync that
+   upserts every row and deletes rows no longer present (last-writer-wins per
+   collection — appropriate for a small board tool). Falls back to localStorage
+   if the backend is unreachable. */
+const SB_URL = "https://krthbgtykwamxqvapxnx.supabase.co";
+const SB_KEY = "sb_publishable_ToA4drk8mWPKiG6RsxRGyA_GC7iXSqf"; // publishable key; board access gated by deploy auth (OMN-51)
+const COLLECTIONS = ["rocks","scorecard","kpis","issues","todos"];
+let sb = null, ONLINE = false;
+try { sb = window.supabase.createClient(SB_URL, SB_KEY); } catch(e){ sb = null; }
+
+/* column (snake_case) <-> object (camelCase) mappers, faithful to the v1 model */
+const MAP = {
+  rocks: {
+    toRow: o => ({id:o.id,title:o.title,owner:o.owner,type:o.type,quarter:o.quarter,due_date:o.dueDate,status:o.status,percent_complete:o.percentComplete,milestones:o.milestones||[]}),
+    toObj: r => ({id:r.id,title:r.title,owner:r.owner,type:r.type,quarter:r.quarter,dueDate:r.due_date,status:r.status,percentComplete:r.percent_complete,milestones:r.milestones||[]})
+  },
+  scorecard: {
+    toRow: o => ({id:o.id,name:o.name,owner:o.owner,goal:o.goal,direction:o.direction,weeks:o.weeks||[]}),
+    toObj: r => ({id:r.id,name:r.name,owner:r.owner,goal:r.goal,direction:r.direction,weeks:r.weeks||[]})
+  },
+  kpis: {
+    toRow: o => ({id:o.id,name:o.name,owner:o.owner,target:o.target,current:o.current,unit:o.unit,history:o.history||[]}),
+    toObj: r => ({id:r.id,name:r.name,owner:r.owner,target:r.target,current:r.current,unit:r.unit,history:r.history||[]})
+  },
+  issues: {
+    toRow: o => ({id:o.id,title:o.title,description:o.description,owner:o.owner,priority:o.priority,status:o.status,created_at:o.createdAt}),
+    toObj: r => ({id:r.id,title:r.title,description:r.description,owner:r.owner,priority:r.priority,status:r.status,createdAt:r.created_at})
+  },
+  todos: {
+    toRow: o => ({id:o.id,title:o.title,owner:o.owner,due_date:o.dueDate,done:!!o.done}),
+    toObj: r => ({id:r.id,title:r.title,owner:r.owner,dueDate:r.due_date,done:!!r.done})
+  }
+};
+
+function setStatus(txt, ok){ const el=document.getElementById("syncstatus"); if(el){ el.textContent=txt; el.style.color = ok?"#16a34a":"#d97706"; } }
+
+function localLoad(){ try{ const r=localStorage.getItem(KEY); if(r) return JSON.parse(r);}catch(e){} return JSON.parse(JSON.stringify(SEED)); }
+function localSave(){ try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){} }
+
+async function cloudLoad(){
+  if(!sb) throw new Error("supabase client unavailable");
+  const out = {};
+  for(const c of COLLECTIONS){
+    const { data, error } = await sb.from(c).select("*");
+    if(error) throw error;
+    out[c] = (data||[]).map(MAP[c].toObj);
+  }
+  try{ const { data } = await sb.from("people").select("name").order("sort_order"); if(data && data.length) PEOPLE = data.map(p=>p.name); }catch(e){}
+  return out;
+}
+
+let _syncing=false, _resync=false;
+async function cloudSaveAll(){
+  if(!sb){ localSave(); return; }
+  if(_syncing){ _resync=true; return; }   // coalesce rapid saves
+  _syncing=true; setStatus("● Saving…", true);
+  try{
+    for(const c of COLLECTIONS){
+      const rows = DB[c].map(MAP[c].toRow);
+      if(rows.length){ const { error } = await sb.from(c).upsert(rows); if(error) throw error; }
+      // delete rows removed locally (everything whose id is not in the current set)
+      let del = sb.from(c).delete();
+      del = rows.length ? del.not("id","in","("+DB[c].map(x=>'"'+String(x.id).replace(/"/g,'')+'"').join(",")+")")
+                        : del.neq("id","__never__");
+      const { error:e2 } = await del; if(e2) throw e2;
+    }
+    localSave(); ONLINE=true; setStatus("● Live · shared", true);
+  }catch(e){
+    ONLINE=false; setStatus("● Offline · saved locally", false); localSave(); console.error("EOS sync failed:", e);
+  }finally{
+    _syncing=false;
+    if(_resync){ _resync=false; cloudSaveAll(); }
+  }
+}
+
+function save(){ renderCounts(); cloudSaveAll(); }   // optimistic: UI updates now, cloud syncs in background
+
+let DB = JSON.parse(JSON.stringify(SEED)); // safe default until init() loads the shared store
+let VIEW = "dashboard";
+
+async function init(){
+  setStatus("● Connecting…", true);
+  try{ DB = await cloudLoad(); ONLINE=true; setStatus("● Live · shared", true); localSave(); }
+  catch(e){ DB = localLoad(); ONLINE=false; setStatus("● Offline · local only", false); console.error("EOS cloud load failed:", e); }
+  renderCounts(); go("dashboard");
+}
+
+function uid(p){ return p+"-"+Math.random().toString(36).slice(2,8); }
+function esc(s){ return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+function ownerSelect(val){ return `<select name="owner">`+PEOPLE.map(p=>`<option ${p===val?"selected":""}>${esc(p)}</option>`).join("")+`</select>`; }
+
+/* ---------- counts ---------- */
+function renderCounts(){
+  document.getElementById("c-rocks").textContent = DB.rocks.length;
+  document.getElementById("c-score").textContent = DB.scorecard.length;
+  document.getElementById("c-kpis").textContent = DB.kpis.length;
+  document.getElementById("c-ids").textContent = DB.issues.filter(i=>i.status!=="solved").length;
+  document.getElementById("c-todos").textContent = DB.todos.filter(t=>!t.done).length;
+}
+
+/* ---------- modal ---------- */
+function openModal(html){ const m=document.getElementById("modal"); m.innerHTML=html; document.getElementById("modal-bg").classList.add("show"); }
+function closeModal(){ document.getElementById("modal-bg").classList.remove("show"); }
+document.getElementById("modal-bg").addEventListener("click",e=>{ if(e.target.id==="modal-bg") closeModal(); });
+
+/* ---------- nav ---------- */
+function go(v){ VIEW=v; document.querySelectorAll(".nav").forEach(n=>n.classList.toggle("active",n.dataset.view===v)); render(); }
+document.querySelectorAll(".nav").forEach(n=>n.addEventListener("click",()=>go(n.dataset.view)));
+
+/* ---------- helpers ---------- */
+function rockStatusPill(s){ return s==="done"?'<span class="pill grey">Done</span>': s==="off-track"?'<span class="pill red">Off-track</span>':'<span class="pill green">On-track</span>'; }
+function priPill(p){ return p==="high"?'<span class="pill red">High</span>': p==="low"?'<span class="pill grey">Low</span>':'<span class="pill amber">Medium</span>'; }
+function idsPill(s){ return s==="solved"?'<span class="pill green">Solved</span>': s==="discussing"?'<span class="pill amber">Discussing</span>':'<span class="pill grey">Open</span>'; }
+
+/* ================= DASHBOARD ================= */
+function viewDashboard(){
+  const r=DB.rocks, onT=r.filter(x=>x.status==="on-track").length, off=r.filter(x=>x.status==="off-track").length, done=r.filter(x=>x.status==="done").length;
+  const openIssues=DB.issues.filter(i=>i.status!=="solved").length;
+  const todosOpen=DB.todos.filter(t=>!t.done).length;
+  let red=0,grn=0;
+  DB.scorecard.forEach(m=>{ const v=m.weeks[m.weeks.length-1]; if(v==null) return; const ok=m.direction===">="?v>=m.goal:v<=m.goal; ok?grn++:red++; });
+  const html = `
+  <h1>Dashboard</h1>
+  <p class="sub">Company-wide EOS health — ${new Date().toISOString().slice(0,10)}</p>
+  <div class="grid cards">
+    <div class="card"><h3>Rocks</h3><div class="big">${onT}/${r.length}</div><div class="meta">${onT} on-track · ${off} off-track · ${done} done</div></div>
+    <div class="card"><h3>Scorecard health</h3><div class="big">${grn}<span class="muted" style="font-size:18px">/${grn+red}</span></div><div class="meta">${grn} green · ${red} red this week</div></div>
+    <div class="card"><h3>Open Issues (IDS)</h3><div class="big">${openIssues}</div><div class="meta">${DB.issues.filter(i=>i.status==="discussing").length} in discussion</div></div>
+    <div class="card"><h3>Open To-Dos</h3><div class="big">${todosOpen}</div><div class="meta">${DB.todos.length-todosOpen} done of ${DB.todos.length}</div></div>
+  </div>
+  <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:18px">
+    <div>
+      <div class="between"><h3 style="margin:0">Rocks at risk</h3><a class="nav" style="display:inline;padding:4px 8px" onclick="go('rocks')">View all →</a></div>
+      <table><thead><tr><th>Rock</th><th>Owner</th><th>Status</th><th class="num">%</th></tr></thead><tbody>
+      ${r.filter(x=>x.status!=="done").sort((a,b)=>a.percentComplete-b.percentComplete).slice(0,6).map(x=>`<tr><td>${esc(x.title)}</td><td class="muted">${esc(x.owner)}</td><td>${rockStatusPill(x.status)}</td><td class="num">${x.percentComplete}%</td></tr>`).join("")||'<tr><td colspan=4 class=muted>No rocks</td></tr>'}
+      </tbody></table>
+    </div>
+    <div>
+      <div class="between"><h3 style="margin:0">This week's to-dos</h3><a class="nav" style="display:inline;padding:4px 8px" onclick="go('todos')">View all →</a></div>
+      <table><thead><tr><th></th><th>To-Do</th><th>Owner</th><th>Due</th></tr></thead><tbody>
+      ${DB.todos.slice(0,7).map(t=>`<tr><td><input type=checkbox ${t.done?"checked":""} onchange="toggleTodo('${t.id}')"></td><td class="${t.done?'done-txt':''}">${esc(t.title)}</td><td class="muted">${esc(t.owner)}</td><td class="muted">${esc(t.dueDate)}</td></tr>`).join("")||'<tr><td colspan=4 class=muted>No to-dos</td></tr>'}
+      </tbody></table>
+    </div>
+  </div>`;
+  return html;
+}
+
+/* ================= ROCKS ================= */
+let rockFilter="all";
+function viewRocks(){
+  const list = DB.rocks.filter(r=> rockFilter==="all"?true: rockFilter==="company"?r.type==="company": r.type==="individual");
+  const rows = list.map(r=>{
+    const ms=r.milestones||[], done=ms.filter(m=>m.done).length;
+    return `<tr>
+      <td><b>${esc(r.title)}</b><div class="muted" style="font-size:12px">${esc(r.quarter)} · ${ms.length?done+"/"+ms.length+" milestones":"no milestones"}</div></td>
+      <td>${esc(r.owner)}</td>
+      <td><span class="tag">${r.type==="company"?"Company":"Individual"}</span></td>
+      <td>${esc(r.dueDate||"")}</td>
+      <td>${rockStatusPill(r.status)}</td>
+      <td style="min-width:130px"><div class="row"><div class="bar" style="flex:1"><i style="width:${r.percentComplete}%"></i></div><span class="num">${r.percentComplete}%</span></div></td>
+      <td><button class="iconbtn" onclick="editRock('${r.id}')">Edit</button><button class="iconbtn" onclick="delItem('rocks','${r.id}')">✕</button></td>
+    </tr>`;
+  }).join("");
+  return `<div class="between"><div><h1>Rocks</h1><p class="sub" style="margin:0">Quarterly priorities — company &amp; individual</p></div>
+    <div class="row"><div class="seg">
+      <button class="${rockFilter==='all'?'on':''}" onclick="rockFilter='all';render()">All</button>
+      <button class="${rockFilter==='company'?'on':''}" onclick="rockFilter='company';render()">Company</button>
+      <button class="${rockFilter==='individual'?'on':''}" onclick="rockFilter='individual';render()">Individual</button>
+    </div><button class="btn" onclick="editRock()">+ New Rock</button></div></div>
+    <table><thead><tr><th>Rock</th><th>Owner</th><th>Type</th><th>Due</th><th>Status</th><th>Progress</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan=7 class=empty>No rocks yet — add one.</td></tr>'}</tbody></table>`;
+}
+function editRock(id){
+  const r = id?DB.rocks.find(x=>x.id===id):{title:"",owner:"Company",type:"company",quarter:"Q2 2026",dueDate:"",status:"on-track",percentComplete:0,milestones:[]};
+  const ms=(r.milestones||[]).map((m,i)=>msRow(m,i)).join("");
+  openModal(`<h2>${id?"Edit":"New"} Rock</h2>
+    <form onsubmit="saveRock(event,'${id||""}')">
+    <div class="fgrid">
+      <div class="full"><label>Title</label><input name="title" required value="${esc(r.title)}"></div>
+      <div><label>Owner</label>${ownerSelect(r.owner)}</div>
+      <div><label>Type</label><select name="type"><option value="company" ${r.type==="company"?"selected":""}>Company</option><option value="individual" ${r.type==="individual"?"selected":""}>Individual</option></select></div>
+      <div><label>Quarter</label><input name="quarter" value="${esc(r.quarter)}"></div>
+      <div><label>Due date</label><input name="dueDate" type="date" value="${esc(r.dueDate)}"></div>
+      <div><label>Status</label><select name="status"><option value="on-track" ${r.status==="on-track"?"selected":""}>On-track</option><option value="off-track" ${r.status==="off-track"?"selected":""}>Off-track</option><option value="done" ${r.status==="done"?"selected":""}>Done</option></select></div>
+      <div><label>% complete</label><input name="pct" type="number" min="0" max="100" value="${r.percentComplete}"></div>
+      <div class="full"><label>Milestones</label><div id="ms-wrap">${ms}</div><button type="button" class="btn sec sm" onclick="addMs()">+ milestone</button></div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn sec" onclick="closeModal()">Cancel</button><button class="btn">Save</button></div>
+    </form>`);
+}
+function msRow(m,i){ return `<div class="ms-row"><input type=checkbox ${m.done?"checked":""}><input type=text value="${esc(m.text)}" placeholder="milestone"><button type=button class="iconbtn" onclick="this.parentNode.remove()">✕</button></div>`; }
+function addMs(){ const w=document.getElementById("ms-wrap"); const d=document.createElement("div"); d.innerHTML=msRow({text:"",done:false}); w.appendChild(d.firstChild); }
+function saveRock(e,id){ e.preventDefault(); const f=e.target;
+  const ms=[...f.querySelectorAll("#ms-wrap .ms-row")].map(r=>({done:r.querySelector("input[type=checkbox]").checked,text:r.querySelector("input[type=text]").value})).filter(m=>m.text.trim());
+  const obj={title:f.title.value,owner:f.owner.value,type:f.type.value,quarter:f.quarter.value,dueDate:f.dueDate.value,status:f.status.value,percentComplete:+f.pct.value||0,milestones:ms};
+  if(id){ Object.assign(DB.rocks.find(x=>x.id===id),obj); } else { obj.id=uid("rock"); DB.rocks.push(obj); }
+  save(); closeModal(); render();
+}
+
+/* ================= SCORECARD ================= */
+function viewScorecard(){
+  const weeks=13;
+  const head=Array.from({length:weeks},(_,i)=>`<th class="num">W${i+1}</th>`).join("");
+  const rows=DB.scorecard.map(m=>{
+    const cells=Array.from({length:weeks},(_,i)=>{ const v=m.weeks[i]; if(v==null) return '<td class="num muted">—</td>'; const ok=m.direction===">="?v>=m.goal:v<=m.goal; return `<td class="num ${ok?'cell-green':'cell-red'}">${v}</td>`;}).join("");
+    return `<tr><td><b>${esc(m.name)}</b></td><td class="muted">${esc(m.owner)}</td><td class="num">${m.direction} ${m.goal}</td>${cells}<td><button class="iconbtn" onclick="editMeas('${m.id}')">Edit</button><button class="iconbtn" onclick="delItem('scorecard','${m.id}')">✕</button></td></tr>`;
+  }).join("");
+  return `<div class="between"><div><h1>Scorecard</h1><p class="sub" style="margin:0">Weekly measurables · 13-week rolling · red/green vs goal</p></div><button class="btn" onclick="editMeas()">+ New Measurable</button></div>
+  <div style="overflow:auto"><table><thead><tr><th>Measurable</th><th>Owner</th><th class="num">Goal</th>${head}<th></th></tr></thead><tbody>${rows||'<tr><td colspan=16 class=empty>No measurables yet.</td></tr>'}</tbody></table></div>`;
+}
+function editMeas(id){
+  const m=id?DB.scorecard.find(x=>x.id===id):{name:"",owner:"Company",goal:0,direction:">=",weeks:Array(13).fill(null)};
+  const wk=m.weeks.map((v,i)=>`<div><label>W${i+1}</label><input name="w${i}" type="number" step="any" value="${v==null?"":v}"></div>`).join("");
+  openModal(`<h2>${id?"Edit":"New"} Measurable</h2><form onsubmit="saveMeas(event,'${id||""}')">
+    <div class="fgrid">
+      <div class="full"><label>Name</label><input name="name" required value="${esc(m.name)}"></div>
+      <div><label>Owner</label>${ownerSelect(m.owner)}</div>
+      <div><label>Direction</label><select name="dir"><option ${m.direction===">="?"selected":""}>&gt;=</option><option ${m.direction==="<="?"selected":""}>&lt;=</option></select></div>
+      <div><label>Goal</label><input name="goal" type="number" step="any" value="${m.goal}"></div>
+    </div>
+    <label>13-week actuals</label>
+    <div class="fgrid" style="grid-template-columns:repeat(4,1fr)">${wk}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:12px"><button type="button" class="btn sec" onclick="closeModal()">Cancel</button><button class="btn">Save</button></div>
+  </form>`);
+}
+function saveMeas(e,id){ e.preventDefault(); const f=e.target;
+  const weeks=Array.from({length:13},(_,i)=>{ const v=f["w"+i].value; return v===""?null:+v; });
+  const obj={name:f.name.value,owner:f.owner.value,goal:+f.goal.value,direction:f.dir.value.replace("&gt;",">").replace("&lt;","<"),weeks};
+  obj.direction = f.dir.value.indexOf("<")>=0?"<=":">=";
+  if(id){ Object.assign(DB.scorecard.find(x=>x.id===id),obj);} else { obj.id=uid("meas"); DB.scorecard.push(obj);} save(); closeModal(); render();
+}
+
+/* ================= KPIs ================= */
+function viewKPIs(){
+  const cards=DB.kpis.map(k=>{
+    const hist=k.history||[]; const vals=hist.map(h=>h.value); const max=Math.max(...vals,k.target,1); const min=Math.min(...vals,0);
+    const spark=hist.map(h=>`<i title="${esc(h.date)}: ${h.value}" style="height:${max>min?((h.value-min)/(max-min)*100):50}%"></i>`).join("");
+    const ok=k.current>=k.target; const last=vals[vals.length-1], prev=vals[vals.length-2];
+    const trend = prev==null?"":last>prev?"▲":last<prev?"▼":"�—";
+    return `<div class="card">
+      <div class="between" style="margin-bottom:6px"><h3 style="margin:0">${esc(k.name)}</h3><span>${trend}</span></div>
+      <div class="big">${esc(k.current)}<span class="muted" style="font-size:14px"> ${esc(k.unit||"")}</span></div>
+      <div class="meta">Target ${esc(k.target)} ${k.unit||""} · <span class="${ok?'cell-green':'cell-red'}">${ok?"on target":"below target"}</span> · ${esc(k.owner)}</div>
+      <div class="sparkline" style="margin-top:12px">${spark||'<span class=muted>no history</span>'}</div>
+      <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="iconbtn" onclick="editKpi('${k.id}')">Edit</button><button class="iconbtn" onclick="delItem('kpis','${k.id}')">✕</button></div>
+    </div>`;
+  }).join("");
+  return `<div class="between"><div><h1>KPIs</h1><p class="sub" style="margin:0">Key metrics with target, current value &amp; trend</p></div><button class="btn" onclick="editKpi()">+ New KPI</button></div>
+  <div class="grid cards">${cards||'<div class="empty">No KPIs yet.</div>'}</div>`;
+}
+function editKpi(id){
+  const k=id?DB.kpis.find(x=>x.id===id):{name:"",owner:"Company",target:0,current:0,unit:"",history:[]};
+  const hist=(k.history||[]).map(h=>`${h.date}:${h.value}`).join("\n");
+  openModal(`<h2>${id?"Edit":"New"} KPI</h2><form onsubmit="saveKpi(event,'${id||""}')">
+    <div class="fgrid">
+      <div class="full"><label>Name</label><input name="name" required value="${esc(k.name)}"></div>
+      <div><label>Owner</label>${ownerSelect(k.owner)}</div>
+      <div><label>Unit</label><input name="unit" value="${esc(k.unit)}"></div>
+      <div><label>Target</label><input name="target" type="number" step="any" value="${k.target}"></div>
+      <div><label>Current</label><input name="current" type="number" step="any" value="${k.current}"></div>
+      <div class="full"><label>History (one per line: date:value)</label><textarea name="hist" rows="4">${esc(hist)}</textarea></div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn sec" onclick="closeModal()">Cancel</button><button class="btn">Save</button></div>
+  </form>`);
+}
+function saveKpi(e,id){ e.preventDefault(); const f=e.target;
+  const history=f.hist.value.split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const [d,v]=l.split(":");return{date:(d||"").trim(),value:+(""+v).trim()||0};});
+  const obj={name:f.name.value,owner:f.owner.value,unit:f.unit.value,target:+f.target.value||0,current:+f.current.value||0,history};
+  if(id){ Object.assign(DB.kpis.find(x=>x.id===id),obj);} else { obj.id=uid("kpi"); DB.kpis.push(obj);} save(); closeModal(); render();
+}
+
+/* ================= IDS / ISSUES ================= */
+let idsFilter="open";
+function viewIDS(){
+  const list=DB.issues.filter(i=> idsFilter==="all"?true: idsFilter==="solved"?i.status==="solved": i.status!=="solved");
+  const order={high:0,medium:1,low:2};
+  list.sort((a,b)=>(order[a.priority]??1)-(order[b.priority]??1));
+  const rows=list.map(i=>`<tr>
+    <td><b>${esc(i.title)}</b>${i.description?`<div class="muted" style="font-size:12px">${esc(i.description)}</div>`:""}</td>
+    <td class="muted">${esc(i.owner)}</td>
+    <td>${priPill(i.priority)}</td>
+    <td>${idsPill(i.status)}</td>
+    <td class="muted">${esc(i.createdAt||"")}</td>
+    <td>${i.status!=="solved"?`<button class="btn sm" onclick="solveIssue('${i.id}')">Solve</button>`:""}<button class="iconbtn" onclick="editIssue('${i.id}')">Edit</button><button class="iconbtn" onclick="delItem('issues','${i.id}')">✕</button></td>
+  </tr>`).join("");
+  return `<div class="between"><div><h1>IDS — Issues List</h1><p class="sub" style="margin:0">Identify · Discuss · Solve</p></div>
+    <div class="row"><div class="seg">
+      <button class="${idsFilter==='open'?'on':''}" onclick="idsFilter='open';render()">Open</button>
+      <button class="${idsFilter==='solved'?'on':''}" onclick="idsFilter='solved';render()">Solved</button>
+      <button class="${idsFilter==='all'?'on':''}" onclick="idsFilter='all';render()">All</button>
+    </div><button class="btn" onclick="editIssue()">+ New Issue</button></div></div>
+    <table><thead><tr><th>Issue</th><th>Owner</th><th>Priority</th><th>Status</th><th>Identified</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan=6 class=empty>No issues here.</td></tr>'}</tbody></table>`;
+}
+function editIssue(id){
+  const i=id?DB.issues.find(x=>x.id===id):{title:"",description:"",owner:"Company",priority:"medium",status:"open",createdAt:new Date().toISOString().slice(0,10)};
+  openModal(`<h2>${id?"Edit":"New"} Issue</h2><form onsubmit="saveIssue(event,'${id||""}')">
+    <div class="fgrid">
+      <div class="full"><label>Title</label><input name="title" required value="${esc(i.title)}"></div>
+      <div class="full"><label>Description</label><textarea name="desc" rows="3">${esc(i.description)}</textarea></div>
+      <div><label>Owner</label>${ownerSelect(i.owner)}</div>
+      <div><label>Priority</label><select name="pri"><option value="high" ${i.priority==="high"?"selected":""}>High</option><option value="medium" ${i.priority==="medium"?"selected":""}>Medium</option><option value="low" ${i.priority==="low"?"selected":""}>Low</option></select></div>
+      <div><label>Status</label><select name="status"><option value="open" ${i.status==="open"?"selected":""}>Open</option><option value="discussing" ${i.status==="discussing"?"selected":""}>Discussing</option><option value="solved" ${i.status==="solved"?"selected":""}>Solved</option></select></div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn sec" onclick="closeModal()">Cancel</button><button class="btn">Save</button></div>
+  </form>`);
+}
+function saveIssue(e,id){ e.preventDefault(); const f=e.target;
+  const obj={title:f.title.value,description:f.desc.value,owner:f.owner.value,priority:f.pri.value,status:f.status.value};
+  if(id){ Object.assign(DB.issues.find(x=>x.id===id),obj);} else { obj.id=uid("ids"); obj.createdAt=new Date().toISOString().slice(0,10); DB.issues.push(obj);} save(); closeModal(); render();
+}
+function solveIssue(id){ DB.issues.find(x=>x.id===id).status="solved"; save(); render(); }
+
+/* ================= TO-DOS ================= */
+let todoFilter="open";
+function viewTodos(){
+  const list=DB.todos.filter(t=> todoFilter==="all"?true: todoFilter==="done"?t.done:!t.done);
+  const rows=list.map(t=>`<tr>
+    <td><input type=checkbox ${t.done?"checked":""} onchange="toggleTodo('${t.id}')"></td>
+    <td class="${t.done?'done-txt':''}"><b>${esc(t.title)}</b></td>
+    <td class="muted">${esc(t.owner)}</td>
+    <td class="muted">${esc(t.dueDate||"")}</td>
+    <td><button class="iconbtn" onclick="editTodo('${t.id}')">Edit</button><button class="iconbtn" onclick="delItem('todos','${t.id}')">✕</button></td>
+  </tr>`).join("");
+  return `<div class="between"><div><h1>To-Dos</h1><p class="sub" style="margin:0">7-day action items</p></div>
+    <div class="row"><div class="seg">
+      <button class="${todoFilter==='open'?'on':''}" onclick="todoFilter='open';render()">Open</button>
+      <button class="${todoFilter==='done'?'on':''}" onclick="todoFilter='done';render()">Done</button>
+      <button class="${todoFilter==='all'?'on':''}" onclick="todoFilter='all';render()">All</button>
+    </div><button class="btn" onclick="editTodo()">+ New To-Do</button></div></div>
+    <table><thead><tr><th></th><th>To-Do</th><th>Owner</th><th>Due</th><th></th></tr></thead>
+    <tbody>${rows||'<tr><td colspan=5 class=empty>Nothing here.</td></tr>'}</tbody></table>`;
+}
+function editTodo(id){
+  const t=id?DB.todos.find(x=>x.id===id):{title:"",owner:"Company",dueDate:"",done:false};
+  openModal(`<h2>${id?"Edit":"New"} To-Do</h2><form onsubmit="saveTodo(event,'${id||""}')">
+    <div class="fgrid">
+      <div class="full"><label>Title</label><input name="title" required value="${esc(t.title)}"></div>
+      <div><label>Owner</label>${ownerSelect(t.owner)}</div>
+      <div><label>Due date</label><input name="due" type="date" value="${esc(t.dueDate)}"></div>
+    </div>
+    <div class="row" style="justify-content:flex-end"><button type="button" class="btn sec" onclick="closeModal()">Cancel</button><button class="btn">Save</button></div>
+  </form>`);
+}
+function saveTodo(e,id){ e.preventDefault(); const f=e.target;
+  const obj={title:f.title.value,owner:f.owner.value,dueDate:f.due.value};
+  if(id){ Object.assign(DB.todos.find(x=>x.id===id),obj);} else { obj.id=uid("todo"); obj.done=false; DB.todos.push(obj);} save(); closeModal(); render();
+}
+function toggleTodo(id){ const t=DB.todos.find(x=>x.id===id); t.done=!t.done; save(); render(); }
+
+/* ---------- shared ---------- */
+function delItem(coll,id){ if(!confirm("Delete this item?")) return; DB[coll]=DB[coll].filter(x=>x.id!==id); save(); render(); }
+function exportData(){ const b=new Blob([JSON.stringify(DB,null,2)],{type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download="eos-data.json"; a.click(); }
+function importData(e){ const fr=new FileReader(); fr.onload=()=>{ try{ DB=JSON.parse(fr.result); save(); render(); alert("Imported."); }catch(err){ alert("Invalid JSON"); } }; fr.readAsText(e.target.files[0]); }
+function resetData(){ if(!confirm("Reset all data to the seeded company structure?")) return; DB=JSON.parse(JSON.stringify(SEED)); save(); render(); }
+
+/* ---------- render ---------- */
+function render(){
+  const m=document.getElementById("main");
+  m.innerHTML = VIEW==="dashboard"?viewDashboard(): VIEW==="rocks"?viewRocks(): VIEW==="scorecard"?viewScorecard(): VIEW==="kpis"?viewKPIs(): VIEW==="ids"?viewIDS(): viewTodos();
+}
+
+/* ---------- board access gate (OMN-51) ---------- */
+const _GATE_HASH = "9729c795ccedc0313505c4b4312d36b5f74032e0e2198114f033c5b233d2e6bc";
+async function _sha(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");}
+function _showGate(){
+  const o=document.createElement("div");o.id="gate";
+  o.style.cssText="position:fixed;inset:0;z-index:99999;background:#0f1419;display:flex;align-items:center;justify-content:center";
+  o.innerHTML='<form id="gateForm" style="background:#171d26;border:1px solid #2a323f;border-radius:14px;padding:34px 32px;width:330px;box-shadow:0 18px 50px rgba(0,0,0,.45);font:15px system-ui,-apple-system,Segoe UI,sans-serif;color:#e6edf3">'+
+  '<h1 style="font-size:18px;margin:0 0 4px">EOS Tracker</h1>'+
+  '<p style="color:#8b97a7;font-size:13px;margin:0 0 22px">Company Operating System &middot; board access</p>'+
+  '<p id="gateErr" style="color:#ff5c5c;margin:0 0 14px;display:none">Incorrect access code. Try again.</p>'+
+  '<label style="display:block;font-size:12px;color:#8b97a7;margin:0 0 6px">Access code</label>'+
+  '<input id="gateCode" autocomplete="off" autofocus placeholder="XXXX-XXXX" style="width:100%;box-sizing:border-box;background:#0f1419;border:1px solid #2a323f;border-radius:8px;color:#e6edf3;padding:11px 12px;font-size:15px;letter-spacing:1px">'+
+  '<button type="submit" style="width:100%;margin-top:16px;background:#4f7cff;border:0;border-radius:8px;color:#fff;padding:11px;font-size:15px;font-weight:600;cursor:pointer">Enter</button>'+
+  '<p style="color:#5b6573;font-size:11px;text-align:center;margin:18px 0 0">Shared board gate &middot; authorized users only</p></form>';
+  document.body.appendChild(o);
+  document.getElementById("gateForm").addEventListener("submit",async(e)=>{
+    e.preventDefault();
+    const v=document.getElementById("gateCode").value.trim().toUpperCase();
+    if(await _sha(v)===_GATE_HASH){sessionStorage.setItem("eos_gate","1");o.remove();init();}
+    else{document.getElementById("gateErr").style.display="block";}
+  });
+}
+if(sessionStorage.getItem("eos_gate")==="1"){init();}else{_showGate();}
+
+</script>
+</body>
+</html>
